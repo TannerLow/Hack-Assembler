@@ -35,6 +35,10 @@ int main(int argc, char **argv){
     loadJumpTable(JumpTable);
 
     cout << parseCInstruction("MD=D+1;JLE", DestTable, CompTable, JumpTable) << endl;
+    vector<string> parsed = parseLines(lines, DestTable, CompTable, JumpTable);
+    for(string line : parsed){
+        cout << line << endl;
+    }
     return 0;
 }
 

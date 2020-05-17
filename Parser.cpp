@@ -31,7 +31,8 @@ void loadInitialSymbols(map<string, int> &table){
 void loadCompTable(map<string, string> &table){
     table["0"]   = "0101010";
     table["1"]   = "0111111";
-    table["D"]   = "0111010";
+    table["-1"]  = "0111010";
+    table["D"]   = "0001100";
     table["A"]   = "0110000"; table["M"]   = "1110000";
     table["!D"]  = "0001101";
     table["!A"]  = "0110001"; table["!M"]  = "1110001";
@@ -92,7 +93,7 @@ string shortToBinary(unsigned short n){
 }
 
 //Returns true if the given line is an A instruction
-bool isAInstruction(const string &line){
+bool isAInstruction(string line){
     return (line.size() and line[0] == '@');
 }
 
@@ -131,14 +132,28 @@ string parseCInstruction(string line,
         comp = line;
     }
 
-    cout << dest << endl;
-    cout << comp << endl;
-    cout << jmp  << endl;
     //compile binary instruction
     result += compTable.find(comp)->second;
     result += (dest == "")? "000": destTable.find(dest)->second;
     result += (jmp  == "")? "000": jumpTable.find( jmp)->second;
     return result;
+}
+
+vector<string> parseLines(vector<string> &lines,
+                         const map<string, string> &destTable,
+                         const map<string, string> &compTable,
+                         const map<string, string> &jumpTable){
+    vector<string> parsedLines;
+    for(string line : lines){
+        if(isAInstruction(line)){
+            parsedLines.push_back(parseAInstruction(line));
+        }
+        else{
+            parsedLines.push_back(parseCInstruction(line,
+                                  destTable, compTable, jumpTable));
+        }
+    }
+    return parsedLines;
 }
 
 

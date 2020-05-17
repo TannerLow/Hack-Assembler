@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -15,6 +16,10 @@ string shortToBinary(unsigned short);
 bool isAInstruction(string);
 string parseAInstruction(string);
 string parseCInstruction(string,
+                         const map<string, string>&,
+                         const map<string, string>&,
+                         const map<string, string>&);
+vector<string> parseLines(vector<string>&,
                          const map<string, string>&,
                          const map<string, string>&,
                          const map<string, string>&);
