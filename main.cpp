@@ -23,7 +23,6 @@ int main(int argc, char **argv){
     sourceCode.close();
     removeWhitespace(lines);
     removeBlankLines(lines);
-    cout << parseAInstruction("@7948") << endl;
 
     //Load data into all the look up tables
     map<string, int> symbolTable;
@@ -34,6 +33,8 @@ int main(int argc, char **argv){
     loadCompTable(CompTable);
     loadDestTable(DestTable);
     loadJumpTable(JumpTable);
+
+    cout << parseCInstruction("MD=D+1;JLE", DestTable, CompTable, JumpTable) << endl;
     return 0;
 }
 

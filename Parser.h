@@ -14,6 +14,10 @@ void loadJumpTable(map<string, string>&);
 string shortToBinary(unsigned short);
 bool isAInstruction(string);
 string parseAInstruction(string);
+string parseCInstruction(string,
+                         const map<string, string>&,
+                         const map<string, string>&,
+                         const map<string, string>&);
 
 
 #endif // PARSER_H

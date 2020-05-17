@@ -92,7 +92,7 @@ string shortToBinary(unsigned short n){
 }
 
 //Returns true if the given line is an A instruction
-bool isAInstruction(string line){
+bool isAInstruction(const string &line){
     return (line.size() and line[0] == '@');
 }
 
@@ -102,3 +102,49 @@ string parseAInstruction(string line){
     int value = stoi(line);
     return shortToBinary(value);
 }
+
+//Parse the given line as a C instruction
+string parseCInstruction(string line,
+                         const map<string, string> &destTable,
+                         const map<string, string> &compTable,
+                         const map<string, string> &jumpTable){
+    string result = "111";
+    string dest = "", comp = "", jmp = "";
+    size_t equalChar = line.find('=');
+    size_t semiColonChar = line.find(';');
+
+    //Parse out each field if they exist
+    if(equalChar != string::npos and semiColonChar != string::npos){
+        comp = line.substr(equalChar+1, semiColonChar - equalChar - 1);
+        dest = line.substr(0, equalChar);
+        jmp = line.substr(semiColonChar+1);
+    }
+    else if(equalChar != string::npos){
+        comp = line.substr(equalChar+1);
+        dest = line.substr(0, equalChar);
+    }
+    else if(semiColonChar != string::npos){
+        comp = line.substr(0, semiColonChar);
+        jmp = line.substr(semiColonChar+1);
+    }
+    else{
+        comp = line;
+    }
+
+    cout << dest << endl;
+    cout << comp << endl;
+    cout << jmp  << endl;
+    //compile binary instruction
+    result += compTable.find(comp)->second;
+    result += (dest == "")? "000": destTable.find(dest)->second;
+    result += (jmp  == "")? "000": jumpTable.find( jmp)->second;
+    return result;
+}
+
+
+
+
+
+
+
+
