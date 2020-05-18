@@ -98,9 +98,24 @@ bool isAInstruction(string line){
 }
 
 //Parse the given line as an A instruction
-string parseAInstruction(string line){
+string parseAInstruction(string line, const map<string, int> &symbolTable){
     line.erase(line.begin());
     int value = stoi(line);
+    return shortToBinary(value);
+}
+
+//Parse the given line as an A instruction (where the instruction is a pointer)
+string parseAInstruction(string line, map<string, int> &symbolTable, int &pointerCount){
+    line.erase(line.begin());
+    map<string, int>::iterator it = symbolTable.find(line);
+    int value;
+    if(it != symbolTable.end()){
+        value = it->second;
+    }
+    else{
+        symbolTable[line] = (pointerCount++) + 16; //pointer addresses start at 16
+        value = symbolTable[line];
+    }
     return shortToBinary(value);
 }
 
@@ -139,14 +154,23 @@ string parseCInstruction(string line,
     return result;
 }
 
+//Parses a collection of lines of valid Hack Assembly code into a collection of "binary" lines
 vector<string> parseLines(vector<string> &lines,
                          const map<string, string> &destTable,
                          const map<string, string> &compTable,
-                         const map<string, string> &jumpTable){
+                         const map<string, string> &jumpTable,
+                         map<string, int>    &symbolTable){
     vector<string> parsedLines;
+    int pointerCount = 0;
     for(string line : lines){
-        if(isAInstruction(line)){
-            parsedLines.push_back(parseAInstruction(line));
+        //Check if its a label
+        if(line[0] == '(') continue;
+        //Check if its a pointer (Ex. @i)
+        if(line[0] == '@' and isalpha(line[1])){
+            parsedLines.push_back(parseAInstruction(line, symbolTable, pointerCount));
+        }
+        else if(isAInstruction(line)){
+            parsedLines.push_back(parseAInstruction(line, symbolTable));
         }
         else{
             parsedLines.push_back(parseCInstruction(line,
@@ -155,6 +179,21 @@ vector<string> parseLines(vector<string> &lines,
     }
     return parsedLines;
 }
+
+//First step in assembling, finds labels and adds them to the symbolTable for later use
+void firstPass(vector<string> &lines, map<string, int> &symbolTable){
+    int count = 0;
+    for(int lineNum = 0; lineNum < lines.size(); lineNum++){
+        //Label detection
+        if(lines[lineNum][0] == '('){
+            size_t closeParen = lines[lineNum].find(')');
+            string label = lines[lineNum].substr(1, closeParen-1);
+            symbolTable[label] = lineNum - count++;
+        }
+    }
+}
+
+
 
 
 

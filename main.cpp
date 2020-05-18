@@ -10,6 +10,8 @@ using namespace std;
 //Function forward declarations
 void removeWhitespace(vector<string>&);
 void removeBlankLines(vector<string>&);
+void saveToFile(const string, const vector<string>&);
+string getFileNameNoExt(const string);
 
 int main(int argc, char **argv){
     //Read source code file and clean it of whitespace/comments
@@ -34,11 +36,14 @@ int main(int argc, char **argv){
     loadDestTable(DestTable);
     loadJumpTable(JumpTable);
 
-    cout << parseCInstruction("MD=D+1;JLE", DestTable, CompTable, JumpTable) << endl;
-    vector<string> parsed = parseLines(lines, DestTable, CompTable, JumpTable);
-    for(string line : parsed){
-        cout << line << endl;
-    }
+    //First pass to find and mark labels
+    firstPass(lines, symbolTable);
+
+    //Parse assembly file
+    vector<string> parsed = parseLines(lines, DestTable, CompTable, JumpTable, symbolTable);
+
+    //save parsed result as <filename.hack>
+    saveToFile(getFileNameNoExt(argv[1]) + ".hack", parsed);
     return 0;
 }
 
@@ -66,4 +71,18 @@ void removeBlankLines(vector<string> &lines){
         if(*it == "")
             lines.erase(it--);
     }
+}
+
+//Save contents of lines to a file with the specified filename
+void saveToFile(const string filename, const vector<string> &lines){
+    ofstream file(filename);
+    for(const string line : lines){
+        file << line << '\n';
+    }
+    file.close();
+}
+
+//Gets files base name (Ex. Max.asm -> Max)
+string getFileNameNoExt(const string fullName){
+    return fullName.substr(0, fullName.size()-4);
 }
